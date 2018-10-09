@@ -18,7 +18,8 @@ decltype推导规则：
 4、exp==>xvalue then decltype(exp) ==> T&&，假设exp为T，xvalue为将亡值。
 
 **********/
-
+#include <vector>
+#include <queue>
 #include <iostream>
 #include <utility>
 #include <future>
@@ -45,13 +46,13 @@ private:
 template<typename F,typename... Args>
 auto ThreadPool::AddType(F&& f,Args&&... args)->std::future<typename std::result_of<F(Args...)>::type>{
 	using return_type = typename std::result_of<F(Args...)>::type;
-	auto func = stsd::packaged_task<return_type()>(std::bind(std::forward<F>(f),std::forward<Args>(args)...)); 
+	auto func = std::packaged_task<return_type()>(std::bind(std::forward<F>(f),std::forward<Args>(args)...)); 
 	{
 		std::unique_lock<std::mutex> lock(Mutex_);
 		Task_.emplace(std::move([&func](){ return func(); }));
 		Condition_.notify_one();
 	}
-	reutrn func.get_future();
+	return func.get_future();
 }
 ThreadPool::~ThreadPool()
 {
@@ -60,7 +61,7 @@ ThreadPool::~ThreadPool()
 		Stop_= true;
 	}
 	Condition_.notify_all();
-	for(auto temp : Task_)
+	for(auto& temp : Work_)
 		temp.join();
 }
 ThreadPool::ThreadPool(size_t size):Stop_(false){
