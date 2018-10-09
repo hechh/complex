@@ -19,6 +19,13 @@ decltype推导规则：
 
 **********/
 
+#include <iostream>
+#include <utility>
+#include <future>
+#include <memory>
+#include <thread>
+#include <condition_variable>
+#include <mutex>
 
 class ThreadPool
 {
@@ -30,7 +37,7 @@ public:
 
 private:
 	std::mutex Mutex_;
-	std::variable_condition Condition_;
+	std::condition_variable Condition_;
 	std::vector<std::thread> Work_;
 	std::queue<std::function<void()>> Task_;
 	bool Stop_;
