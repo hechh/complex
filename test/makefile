@@ -1,4 +1,4 @@
-CFLAGS:=-Wall -g -pthread
+CFLAGS:=-Wall -g -pthread -std=c++11
 OUTPUT:=-o
 test:=cmain
 INCLUDE=-I../core

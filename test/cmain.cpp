@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-#include "../core/HEThreadPool.h"
+#include "../core/HEThreadPool.hpp"
 
 
 int Add(int a,int b){
