@@ -8,6 +8,9 @@
 #include <atomic>
 #include <map>
 #include <fstream>
+#include "Utils.h"
+
+
 
 class ParseFile {
 public:
@@ -16,26 +19,15 @@ public:
 
 private:
 	void GetLine(std::fstream& fs, std::string& strline);
-	void DelAnnotation(std::string& strTmp);
 	void ParseLine(std::string& strline, std::map<std::string, std::vector<std::string>>& mapData);
-	void DelSpace(size_t& pos1,size_t& pos2,std::string& str);
-	void MultiSplit(std::string& strline,std::string spstr,std::map<int,std::string>& mapStr);
-	void Split(std::string& strline,std::string spstr,std::map<int,std::string>& mapData);
 
 private:
 	std::fstream FileStream_;
 };
 
-void ParseFile::DelAnnotation(std::string& strTmp) {
-	size_t pos = 0;
-	if ((pos = strTmp.find("//")) != std::string::npos) {
-		strTmp.resize(pos);
-	}
-}
-
-ParseFile::ParseFile(std::string filepath): FileStream_(filepath, std::ios_base::binary | std::ios_base::in) {
+ParseFile::ParseFile(std::string filepath) : FileStream_(filepath, std::ios_base::binary | std::ios_base::in) {
 	if (!FileStream_.is_open()) {
-		FileStream_.open(filepath,std::ios_base::in);
+		FileStream_.open(filepath, std::ios_base::in);
 	}
 }
 
@@ -45,14 +37,14 @@ void ParseFile::GetLine(std::fstream& fs, std::string& strline) {
 	std::atomic<bool> bflag2 = true;
 	while ((bflag1 || bflag2) && !fs.eof()) {
 		std::string strlinetmp;
-		char chtemp[1024] = { 0 };
-		fs.getline(chtemp, 1024, '\n');
+		char chtemp[2048] = { 0 };
+		fs.getline(chtemp, 2048, '\n');
 		strlinetmp = chtemp;
 		if (strlinetmp.find("message") != std::string::npos) {
 			bflag1 = false;
 		}
-		if(!bflag1){
-			DelAnnotation(strlinetmp);
+		if (!bflag1) {
+			Utils::DelAnnotation(strlinetmp);
 			strline += strlinetmp;
 		}
 		if (strlinetmp.find("}") != std::string::npos) {
@@ -71,36 +63,21 @@ void ParseFile::PutFileData(std::vector<std::string>& vecFileData) {
 	}
 }
 
-void ParseFile::Split(std::string& strline, std::string spstr, std::map<int, std::string>& mapData){
-	size_t pos = strline.find(spstr);
-	mapData[1] = strline.substr(0,pos);
-	size_t tmp = pos + spstr.size();
-	mapData[2] = strline.substr(tmp,strline.size()-tmp);
-}
-
-void ParseFile::MultiSplit(std::string& strline, std::string spstr,std::map<int,std::string>& mapStr) {
-	std::vector<int> vecInt;
-	vecInt.push_back(-((int)spstr.size()));
-	for (size_t pos = 0; pos = strline.substr(pos,strline.size()-pos).find(spstr) && pos != std::string::npos; vecInt.push_back(pos),pos += spstr.size());
-	vecInt.push_back(strline.size());
-	std::sort(vecInt.begin(), vecInt.end(), [](int a, int b) { return (a<b); });
-	int index = 0;
-	for (int i = 0; i < vecInt.size()-1; i++) {
-		int ibegin = vecInt[i] + spstr.size();
-		int icount = vecInt[i+1] - ibegin;
-		if (icount > 0) {
-			mapStr[++index] = strline.substr(ibegin, icount);
-		}
-	}
-}
-
-void ParseFile::DelSpace(size_t& pos1, size_t& pos2, std::string& str) {
-	for (; str[pos1] == ' ';++pos1);
-	for (; str[pos2] == ' '; --pos2);
-	str = str.substr(pos1,pos2+1);
-}
 
 void ParseFile::ParseLine(std::string& strline, std::map<std::string, std::vector<std::string>>& mapData) {
+	std::vector<std::string> vecStr;
+	std::vector<std::string> vecStr2;
+	std::vector<std::string> vecStr3;
 
+	std::string strTemp(strline.substr(0, strline.find("}")));
+	Utils::Split(strTemp, "{", vecStr);
+
+	Utils::Split(vecStr.front(), " ", vecStr2);
+	Utils::MultiSplit(vecStr.back(), ";", vecStr3);
+
+	std::string strTemp(vecStr2.back());
+	for (auto& tmp : vecStr3) {
+		mapData[Utils::DelSpace(0, strTemp.size()-1,strTemp)].push_back(Utils::DelSpace(0,tmp.size()-1,tmp));
+	}
 }
 
