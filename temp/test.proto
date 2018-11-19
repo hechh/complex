@@ -1,0 +1,42 @@
+syntax = "proto3";
+message RiskThresholdTap1
+{
+	string opera_type=1;	//dfalksdjfalkj
+	int32 risk_id=2;	//235dg
+	int32 serial_id=3;	//asdfa
+	int32 tap_type_code=4;
+	int32 tap_type_oper=5;
+	int32 include_flag=6;
+	double min_value=7;
+	double max_value=8;
+	int32 risk_action=9;
+	string remark=10;
+}
+
+message RiskThresholdTap2
+{
+	string opera_type=1;
+	int32 risk_id=2;
+	int32 serial_id=3;
+	int32 tap_type_code=4;
+	int32 tap_type_oper=5;
+	int32 include_flag=6;
+	double min_value=7;
+	double max_value=8;
+	int32 risk_action=9;
+	string remark=10;
+}
+
+message RiskThresholdTap3
+{
+	string opera_type=1;
+	int32 risk_id=2;
+	int32 serial_id=3;
+	int32 tap_type_code=4;
+	int32 tap_type_oper=5;
+	int32 include_flag=6;
+	double min_value=7;
+	double max_value=8;
+	int32 risk_action=9;
+	string remark=10;
+}
