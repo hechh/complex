@@ -1,5 +1,5 @@
 #pragma once
-
+#include <sstream>
 #include <string>
 #include <iostream>
 #include <type_traits>
@@ -9,8 +9,10 @@
 #include <map>
 #include <fstream>
 #include "Utils.h"
+#include "Traits_Type.h"
 
-
+using namespace type_traits;
+using namespace tools;
 
 class ParseFile {
 public:
@@ -19,7 +21,8 @@ public:
 
 private:
 	void GetLine(std::fstream& fs, std::string& strline);
-	void ParseLine(std::string& strline, std::map<std::string, std::vector<std::string>>& mapData);
+	void ParseLine(const std::string& strline,std::map<std::string,std::map<std::string,std::string>>& mapData);
+	void ParseLine(std::string& strline,std::map<std::string, std::map<std::string,type_traits::Type>>& mapData);
 
 private:
 	std::fstream FileStream_;
@@ -40,7 +43,7 @@ void ParseFile::GetLine(std::fstream& fs, std::string& strline) {
 		char chtemp[2048] = { 0 };
 		fs.getline(chtemp, 2048, '\n');
 		strlinetmp = chtemp;
-		if (strlinetmp.find("message") != std::string::npos) {
+		if (Utils::Split(strline,"message",Back)) {
 			bflag1 = false;
 		}
 		if (!bflag1) {
@@ -51,6 +54,7 @@ void ParseFile::GetLine(std::fstream& fs, std::string& strline) {
 			bflag2 = false;
 		}
 	}
+	Utils::DelSpace(strline);
 }
 
 void ParseFile::PutFileData(std::vector<std::string>& vecFileData) {
@@ -63,21 +67,29 @@ void ParseFile::PutFileData(std::vector<std::string>& vecFileData) {
 	}
 }
 
-
-void ParseFile::ParseLine(std::string& strline, std::map<std::string, std::vector<std::string>>& mapData) {
+void ParseFile::ParseLine(const std::string& strline,std::map<std::string,std::map<std::string,std::string>>& mapData) {
 	std::vector<std::string> vecStr;
 	std::vector<std::string> vecStr2;
 	std::vector<std::string> vecStr3;
+	std::string strTmp(strline);
 
-	std::string strTemp(strline.substr(0, strline.find("}")));
-	Utils::Split(strTemp, "{", vecStr);
+	Utils::Split(strTmp,"}",Front);
+	Utils::MultiSplit(strTmp,"{",vecStr);
+	
+	std::string strTmp01(vecStr.front());
+	std::string strTmp02(vecStr.back());
 
-	Utils::Split(vecStr.front(), " ", vecStr2);
-	Utils::MultiSplit(vecStr.back(), ";", vecStr3);
+	Utils::DelSpace(strTmp01);
+	Utils::MultiSplit(strTmp02,";",vecStr2);
 
-	std::string strTemp(vecStr2.back());
-	for (auto& tmp : vecStr3) {
-		mapData[Utils::DelSpace(0, strTemp.size()-1,strTemp)].push_back(Utils::DelSpace(0,tmp.size()-1,tmp));
+	std::stringstream os;
+	for (auto& tmp : vecStr2) {
+		Utils::Split(tmp,"=",Front);
+		os.str(" ");
+		os << tmp;
+		std::string strKey;
+		std::string strValue;
+		os >> strValue >> strKey;
+		mapData[strTmp01][strKey] = strValue;
 	}
 }
-
