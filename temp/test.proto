@@ -1,6 +1,7 @@
 syntax = "proto3";
 message RiskThresholdTap1
 {
+	repeated RiskThresholdTap2 tap02;
 	string opera_type=1;	//dfalksdjfalkj
 	int32 risk_id=2;	//235dg
 	int32 serial_id=3;	//asdfa
@@ -15,6 +16,7 @@ message RiskThresholdTap1
 
 message RiskThresholdTap2
 {
+	RiskThresholdTap1 tap01;
 	string opera_type=1;
 	int32 risk_id=2;
 	int32 serial_id=3;
@@ -29,6 +31,8 @@ message RiskThresholdTap2
 
 message RiskThresholdTap3
 {
+	RiskThresholdTap1 tap01;
+	RiskThresholdTap2 tap02;
 	string opera_type=1;
 	int32 risk_id=2;
 	int32 serial_id=3;
